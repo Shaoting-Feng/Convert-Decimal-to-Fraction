@@ -1,10 +1,11 @@
 // To convert a decimal value to its equal fraction expression
 #include <stdio.h>
-#include <cmath>
+#include <string>
+#include <iostream>
 
 using namespace std;
 
-int gcd(int a, int b)
+long long gcd(long long a, long long b)
 {
     int temp;
     while (b != 0) {
@@ -15,49 +16,57 @@ int gcd(int a, int b)
     return a;
 }
 
+long long qpow(long long a, long long b)
+{
+    long long res = 1;
+    while (b) {
+        if (b & 1) res *= a;
+        a *= a;
+        b >>= 1;
+    }
+    return res;
+}
+
 int main()
 {
-    int part1, repetend, flag, temp, counter1 = 0, counter2 = 0, numerator, denominator, GCD;
-    printf("if contain non-repetend part:\n");
-    scanf("%d", &flag); // if includes several numbers(part1) in front of repetend, flag = 1; else, flag = 0
-    if (flag) {
-        printf("non-repetend part:\n");
-        scanf("%d", &part1);
-        // how many digits of part1
-        temp = part1;
-        while (temp > 10) {
-            temp /= 10;
+    int num[1000], counterAll, i, counter1, counter2;
+    num[0] = 0;
+    string str;
+    long long denominatorMax, part1, numerator, denominator, repetend, GCD, n, d;
+    while (cin >> str, str != "0") {
+        denominatorMax = 1e9 + 7;
+        counterAll = 0;
+        n = 0;
+        d = 0;
+        for (long long unsigned int i = 2; i <= str.length() - 4; i++) num[++counterAll] = str[i] - '0';
+        counter1 = 0;
+        part1 = 0;
+        repetend = 0;
+        for (i = 1; i <= counterAll; ++i) {
+            repetend = repetend * 10 + num[i];
+        }
+        while (counter1 < counterAll) {
+            part1 = part1 * 10 + num[counter1];
+            counter2 = counterAll - counter1;
+            repetend -= num[counter1] * qpow(10, counter2);
+            numerator = part1 * qpow(10, counter2) + repetend - part1;
+            denominator = 0;
+            for (; counter2--; counter2 > 0) {
+                denominator *= 10;
+                denominator += 9;
+            }
+            denominator *= qpow(10, counter1);
+            GCD = gcd(denominator, numerator);
+            numerator /= GCD;
+            denominator /= GCD;
+            if (denominator < denominatorMax) {n = numerator; denominatorMax = d = denominator;};
             counter1++;
         }
-        counter1++;
+        printf("%I64d", n);
+        printf("/");
+        printf("%I64d", d);
+        printf("\n");
     }
-    printf("repetend part:\n");
-    scanf("%d", &repetend);
-    // how many digits of repetend
-    temp = repetend;
-    while (temp > 10) {
-        temp /= 10;
-        counter2++;
-    }
-    counter2++;
-    if (flag) {
-        numerator = part1 * pow(10, counter2) + repetend - part1;
-        for (; counter2--; counter2 > 0) {
-            denominator *= 10;
-            denominator += 9;
-        }
-        denominator *= pow(10, counter1);
-    }
-    else {
-        numerator = repetend;
-        for (; counter2--; counter2 > 0) {
-            denominator *= 10;
-            denominator += 9;
-        }
-    }
-    GCD = gcd(denominator, numerator);
-    printf("numerator: %d\n", numerator / GCD);
-    printf("denominator: %d\n", denominator / GCD);
     return 0;
 }
 
